@@ -16,9 +16,16 @@
 
         <div class="mt-4">
             <h1 class="pt-5 pb-1 fs-3">Текущие задачи:</h1>
-            <ul>
-                <li v-for="(task, index) in tasks" :key="index">
+            <ul class="list-group">
+                <li class="list-group-item" v-for="(task, index) in tasks" :key="index">
+                    <label class="btn btn-outline-success me-3" :for="'btncheck' + index">
+                        {{ task.completed ? 'Выполнено' : 'Не выполнено' }}
+                    </label>
+                    <input type="checkbox" class="btn-check" :id="'btncheck' + index" v-model="task.completed"
+                        @change="updateTaskStatus(index)" />
+                   
                     <strong>{{ task.name }}</strong>: {{ task.description }}
+                    <button class="btn btn-danger ms-3" @click="removeTask(index)">Удалить</button>
                 </li>
             </ul>
         </div>
@@ -26,7 +33,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useTasksStore } from '@/store/index.js';
 
 export default {
@@ -37,7 +44,11 @@ export default {
 
         const addTask = () => {
             if (taskName.value && taskDescription.value) {
-                tasksStore.addTask({ name: taskName.value, description: taskDescription.value });
+                tasksStore.addTask({
+                    name: taskName.value,
+                    description: taskDescription.value,
+                    completed: false
+                });
                 taskName.value = '';
                 taskDescription.value = '';
             } else {
@@ -45,11 +56,25 @@ export default {
             }
         };
 
+        const updateTaskStatus = (index) => {
+            tasksStore.updateTaskStatus(index);
+        };
+
+        const removeTask = (index) => {
+            tasksStore.removeTask(index);
+        };        
+
+        onMounted(() => {
+            tasksStore.loadTasks();
+        });
+
         return {
             taskName,
             taskDescription,
             addTask,
             tasks: tasksStore.tasks,
+            removeTask,
+            updateTaskStatus,
         };
     },
 };
