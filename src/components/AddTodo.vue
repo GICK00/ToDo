@@ -22,8 +22,7 @@
                         {{ task.completed ? 'Выполнено' : 'Не выполнено' }}
                     </label>
                     <input type="checkbox" class="btn-check" :id="'btncheck' + index" v-model="task.completed"
-                        @change="updateTaskStatus(index)" />
-                   
+                        @click="updateTaskStatus(index)" />
                     <strong>{{ task.name }}</strong>: {{ task.description }}
                     <button class="btn btn-danger ms-3" @click="removeTask(index)">Удалить</button>
                 </li>
@@ -47,7 +46,7 @@ export default {
                 tasksStore.addTask({
                     name: taskName.value,
                     description: taskDescription.value,
-                    completed: false
+                    completed: false,
                 });
                 taskName.value = '';
                 taskDescription.value = '';
@@ -62,7 +61,7 @@ export default {
 
         const removeTask = (index) => {
             tasksStore.removeTask(index);
-        };        
+        };
 
         onMounted(() => {
             tasksStore.loadTasks();
