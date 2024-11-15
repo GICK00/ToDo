@@ -15,15 +15,30 @@
         </div>
 
         <div class="mt-4">
-            <h1 class="pt-5 pb-1 fs-3">Текущие задачи:</h1>
+            <div class="pt-5 pb-1 d-inline-flex align-items-center">
+                <h1 class="fs-3 me-3">Текущие задачи:</h1>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" :class="{ active: currentFilter === 'all' }"
+                        @click="setFilter('all')">
+                        Все
+                    </button>
+                    <button class="btn btn-outline-primary" :class="{ active: currentFilter === 'incomplete' }"
+                        @click="setFilter('incomplete')">
+                        Не выполнено
+                    </button>
+                    <button class="btn btn-outline-primary" :class="{ active: currentFilter === 'completed' }"
+                        @click="setFilter('completed')">
+                        Выполнено
+                    </button>
+                </div>
+            </div>
             <ul class="list-group">
                 <li class="list-group-item d-inline-flex justify-content-between align-items-center"
-                    v-for="(task, index) in tasks" :key="index">
-                    <label v-if="task.completed" class="btn btn-success me-3" :for="'btncheck' + index" cheked>
-                        Выполнено
-                    </label>
-                    <label v-else class="btn btn-outline-success me-3" :for="'btncheck' + index" cheked>
-                        Не выполнено
+                    v-for="(task, index) in filteredTasks" :key="index">
+                    <label
+                        :class="{ 'btn btn-success me-3': task.completed, 'btn btn-outline-success me-3': !task.completed }"
+                        :for="'btncheck' + index" cheked>
+                        {{ task.completed ? 'Выполнено' : 'Не выполнено' }}
                     </label>
                     <input type="checkbox" class="btn-check" :id="'btncheck' + index" v-model="task.completed"
                         @click="updateTaskStatus(index)" />
@@ -36,7 +51,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useTasksStore } from '@/store/index.js';
 
 export default {
@@ -44,6 +59,8 @@ export default {
         const taskName = ref('');
         const taskDescription = ref('');
         const tasksStore = useTasksStore();
+        const currentFilter = ref('all');
+
         const maxDescriptionLength = 100;
 
         const addTask = () => {
@@ -72,6 +89,20 @@ export default {
             tasksStore.removeTask(index);
         };
 
+        const setFilter = (filter) => {
+            currentFilter.value = filter;
+        };
+
+        const filteredTasks = computed(() => {
+            const tasks = tasksStore.tasks.value;
+            if (currentFilter.value === 'completed') {
+                return tasks.filter(task => task.completed);
+            } else if (currentFilter.value === 'incomplete') {
+                return tasks.filter(task => !task.completed);
+            }
+            return tasks;
+        });
+
         onMounted(() => {
             tasksStore.loadTasks();
         });
@@ -81,8 +112,11 @@ export default {
             taskDescription,
             addTask,
             tasks: tasksStore.tasks,
+            filteredTasks,
             removeTask,
             updateTaskStatus,
+            currentFilter,
+            setFilter,
         };
     },
 };
