@@ -17,13 +17,17 @@
         <div class="mt-4">
             <h1 class="pt-5 pb-1 fs-3">Текущие задачи:</h1>
             <ul class="list-group">
-                <li class="list-group-item" v-for="(task, index) in tasks" :key="index">
-                    <label class="btn btn-outline-success me-3" :for="'btncheck' + index">
-                        {{ task.completed ? 'Выполнено' : 'Не выполнено' }}
+                <li class="list-group-item d-inline-flex justify-content-between align-items-center"
+                    v-for="(task, index) in tasks" :key="index">
+                    <label v-if="task.completed" class="btn btn-success me-3" :for="'btncheck' + index" cheked>
+                        Выполнено
+                    </label>
+                    <label v-else class="btn btn-outline-success me-3" :for="'btncheck' + index" cheked>
+                        Не выполнено
                     </label>
                     <input type="checkbox" class="btn-check" :id="'btncheck' + index" v-model="task.completed"
                         @click="updateTaskStatus(index)" />
-                    <strong>{{ task.name }}</strong>: {{ task.description }}
+                    <strong>{{ task.name }} : {{ task.description }}</strong>
                     <button class="btn btn-danger ms-3" @click="removeTask(index)">Удалить</button>
                 </li>
             </ul>
@@ -40,16 +44,21 @@ export default {
         const taskName = ref('');
         const taskDescription = ref('');
         const tasksStore = useTasksStore();
+        const maxDescriptionLength = 100;
 
         const addTask = () => {
             if (taskName.value && taskDescription.value) {
-                tasksStore.addTask({
-                    name: taskName.value,
-                    description: taskDescription.value,
-                    completed: false,
-                });
-                taskName.value = '';
-                taskDescription.value = '';
+                if ((taskDescription.value.length + taskDescription.value.length) <= maxDescriptionLength) {
+                    tasksStore.addTask({
+                        name: taskName.value,
+                        description: taskDescription.value,
+                        completed: false,
+                    });
+                    taskName.value = '';
+                    taskDescription.value = '';
+                } else {
+                    alert('Описание задачи не должно превышать ' + maxDescriptionLength + ' символов');
+                }
             } else {
                 alert('Пожалуйста, заполните оба поля');
             }
