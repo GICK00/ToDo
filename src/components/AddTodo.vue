@@ -20,15 +20,15 @@
                 <div class="btn-group">
                     <button class="btn btn-outline-primary" :class="{ active: currentFilter === 'all' }"
                         @click="setFilter('all')">
-                        Все
+                        Все ({{ totalTasks }})
                     </button>
                     <button class="btn btn-outline-primary" :class="{ active: currentFilter === 'incomplete' }"
                         @click="setFilter('incomplete')">
-                        Не выполнено
+                        Не выполнено ({{ incompleteTasksCount }})
                     </button>
                     <button class="btn btn-outline-primary" :class="{ active: currentFilter === 'completed' }"
                         @click="setFilter('completed')">
-                        Выполнено
+                        Выполнено ({{ completedTasksCount }})
                     </button>
                 </div>
             </div>
@@ -103,6 +103,18 @@ export default {
             return tasks;
         });
 
+        const completedTasksCount = computed(() => {
+            return tasksStore.tasks.value.filter(task => task.completed).length;
+        });
+
+        const incompleteTasksCount = computed(() => {
+            return tasksStore.tasks.value.filter(task => !task.completed).length;
+        });
+
+        const totalTasks = computed(() => {
+            return tasksStore.tasks.value.length;
+        });
+
         onMounted(() => {
             tasksStore.loadTasks();
         });
@@ -116,6 +128,9 @@ export default {
             updateTaskStatus,
             currentFilter,
             setFilter,
+            completedTasksCount,
+            incompleteTasksCount,
+            totalTasks,
         };
     },
 };
