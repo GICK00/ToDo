@@ -34,16 +34,16 @@
             </div>
             <ul class="list-group">
                 <li class="list-group-item d-inline-flex justify-content-between align-items-center"
-                    v-for="(task, index) in filteredTasks" :key="index">
+                    v-for="task in tasks" :key="task.id">
                     <label
                         :class="{ 'btn btn-success me-3': task.completed, 'btn btn-outline-success me-3': !task.completed }"
-                        :for="'btncheck' + index" cheked>
+                        :for="'btncheck' + task.id" cheked>
                         {{ task.completed ? 'Выполнено' : 'Не выполнено' }}
                     </label>
-                    <input type="checkbox" class="btn-check" :id="'btncheck' + index" v-model="task.completed"
-                        @click="updateTaskStatus(index)" />
+                    <input type="checkbox" class="btn-check" :id="'btncheck' + task.id" v-model="task.completed"
+                        @click="updateTaskStatus(task.id)" />
                     <strong>{{ task.name }} : {{ task.description }}</strong>
-                    <button class="btn btn-danger ms-3" @click="removeTask(index)">Удалить</button>
+                    <button class="btn btn-danger ms-3" @click="removeTask(task.id)">Удалить</button>
                 </li>
             </ul>
         </div>
@@ -65,7 +65,7 @@ export default {
 
         const addTask = () => {
             if (taskName.value && taskDescription.value) {
-                if ((taskDescription.value.length + taskDescription.value.length) <= maxDescriptionLength) {
+                if (taskDescription.value.length <= maxDescriptionLength) {
                     tasksStore.addTask({
                         name: taskName.value,
                         description: taskDescription.value,
@@ -81,19 +81,19 @@ export default {
             }
         };
 
-        const updateTaskStatus = (index) => {
-            tasksStore.updateTaskStatus(index);
+        const updateTaskStatus = (id) => {
+            tasksStore.updateTaskStatus(id);
         };
 
-        const removeTask = (index) => {
-            tasksStore.removeTask(index);
+        const removeTask = (id) => {
+            tasksStore.removeTask(id);
         };
 
         const setFilter = (filter) => {
             currentFilter.value = filter;
         };
 
-        const filteredTasks = computed(() => {
+        const tasks = computed(() => {
             const tasks = tasksStore.tasks.value;
             if (currentFilter.value === 'completed') {
                 return tasks.filter(task => task.completed);
@@ -111,8 +111,7 @@ export default {
             taskName,
             taskDescription,
             addTask,
-            tasks: tasksStore.tasks,
-            filteredTasks,
+            tasks,
             removeTask,
             updateTaskStatus,
             currentFilter,
